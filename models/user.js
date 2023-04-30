@@ -2,7 +2,7 @@ const { Schema, model } = require('mongoose');
 const thoughtSchema = require('./thought');
 
 // email validation function
-var validateEmail = function(email) {
+var validateEmail = function (email) {
     var regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     return regex.test(email)
 };
@@ -33,18 +33,7 @@ const userSchema = new Schema(
                 type: Schema.Types.ObjectId,
                 ref: 'User',
             },
-            // Might need this not sure, friendsCount might need to be set up in
-            // userController.js
-            // userSchema
-            // .virtual('friendsCount')
-            // .get(function () {
-            //     return `${this._id} ${this.username}`;
-            // })
-            // .set(function (v) {
-            //     const _id = v.split(' ')[0];
-            //     const username = v.split(' ')[1];
-            //     this.set({ _id, username });
-            // })
+
         ],
     },
     {
@@ -55,6 +44,26 @@ const userSchema = new Schema(
     }
 );
 
+// virtual to get friendsCount for users
+userSchema.virtual('friendsCount')
+    .get(function () {
+        return this.friends.length;
+    })
+
 const User = model('user', userSchema);
 
 module.exports = User;
+
+// ===================================================================== //
+// Might need this not sure, friendsCount might need to be set up in
+// userController.js
+// userSchema
+// .virtual('friendsCount')
+// .get(function () {
+//     return `${this._id} ${this.username}`;
+// })
+// .set(function (v) {
+//     const _id = v.split(' ')[0];
+//     const username = v.split(' ')[1];
+//     this.set({ _id, username });
+ // })

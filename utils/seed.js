@@ -33,10 +33,10 @@ connection.once('open', async () => {
   await User.collection.insertMany(user);
 
   // Add thoughts to the collection and await the results
-  await Thought.collection.insertOne({
+  await Thought.collection.insertMany(user.map(user => ({
     thoughtName: 'Thought',
-    user: [...user],
-  });
+    user: user._id,
+  })));
 
   // Log out the seed data to indicate what should appear in the database
   console.table(user);

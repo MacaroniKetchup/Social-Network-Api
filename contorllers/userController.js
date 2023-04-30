@@ -12,12 +12,12 @@ const headCount = async () => {
 
 module.exports = {
  // Get all Users
- async getUsers(req, res) {
+ async getUser(req, res) {
     try {
-      const users = await User.find();
+      const user = await User.find();
 
       const userObj = {
-        users,
+        user,
         headCount: await headCount(),
       };
 
@@ -31,16 +31,15 @@ module.exports = {
   async getSingleUser(req, res) {
     try {
       const user = await User.findOne({ _id: req.params.userId })
-        .select('-__v');
+      .populate('thoughts')
+      .populate('friends')
+      .select('-__v');
 
       if (!user) {
         return res.status(404).json({ message: 'No user with that ID' })
       }
-      // will need to look at this further
-      res.json({
-        user,
-        thought: await thought(req.params.userId),
-      });
+      res.json(user);
+
     } catch (err) {
       console.log(err);
       return res.status(500).json(err);
@@ -55,6 +54,23 @@ module.exports = {
       res.status(500).json(err);
     }
   },
+  // Update a user
+  async updateUser(req, res) {
+    try{
+      const user = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $set: req.body },
+        {new: true }
+        );
+        if (!user) {
+          return res.status(404).json({ message: 'No such user exists with this ID' });
+        }
+        res.json({ message: 'User successfully updated' });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  },
   // Delete a user and remove thoughts from the user
   async deleteUser(req, res) {
     try {
@@ -64,7 +80,7 @@ module.exports = {
         return res.status(404).json({ message: 'No such user exists' });
       }
 
-      const thought = await Thought.findOneAndUpdate(
+      const thought = await Thought.deleteMany(
         { user: req.params.userId },
         { $pull: { user: req.params.userId } },
         { new: true }
@@ -83,15 +99,15 @@ module.exports = {
     }
   },
 
-  // Add a Thought to a User
-  async addThought(req, res) {
-    console.log('You are adding a Thought');
+  // Add a Friend to a User
+  async addFriend(req, res) {
+    console.log('You are adding a Friend');
     console.log(req.body);
 
     try {
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $addToSet: { thoughts: req.body } },
+        { $addToSet: { friends: req.params.friendId } },
         { runValidators: true, new: true }
       );
 
@@ -106,13 +122,13 @@ module.exports = {
       res.status(500).json(err);
     }
   },
-  // Remove Thought from a User
-  async removeThought(req, res) {
+  // Remove Friend from a User
+  async removeFriend(req, res) {
     try {
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $pull: { thought: { thoughtId: req.params.thoughtId } } },
-        { runValidators: true, new: true }
+        { $pull: { friends: req.params.friendId  } },
+        { new: true }
       );
 
       if (!user) {

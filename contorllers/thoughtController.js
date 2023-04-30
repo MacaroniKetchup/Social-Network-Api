@@ -26,13 +26,22 @@ module.exports = {
     }
   },
   // Create a Thought
-  async createThought(req, res) {
+  async createThought (req, res) {
     try {
-      const thought = await Thought.create(req.body);
+      const thought = await Thought.create(req.body)
+      .then (({ _id }) => {
+        return User.findOneAndUpdate(
+          { _id: ReadableStreamBYOBRequest.body.userId },
+          { $push: {thought: _id } },
+          { new: true }
+        );
+      })
+      if (!thought) {
+        return res.status(404).json({ message: 'No thought with that ID' });
+      }
       res.json(thought);
     } catch (err) {
-      console.log(err);
-      return res.status(500).json(err);
+      res.status(500).json(err)
     }
   },
   // Delete a Thought
@@ -44,7 +53,7 @@ module.exports = {
         res.status(404).json({ message: 'No thought with that ID' });
       }
 
-      await User.deleteMany({ _id: { $in: thought.User } });
+      await User.findOneAndDelete({ _id: { $in: thought.User } });
       res.json({ message: 'Thought and User deleted!' });
     } catch (err) {
       res.status(500).json(err);
@@ -66,6 +75,38 @@ module.exports = {
       res.json(thought);
     } catch (err) {
       res.status(500).json(err);
+    }
+  },
+  // Create a Reaction
+  async createReaction(req, res) {
+    try {
+      const thought = await Thought.findOneAndUpdate(
+        { _id: req.params.thoughtId },
+        { $addToSet: { reaction: req.body } },
+        { runValidators: true, new: true }
+      )
+      if (!thought) {
+        res.status(404).json ({ message: 'No thought with that ID'});
+      }
+      res.json(thought);
+    } catch(err) {
+      res.status(500).json(err)
+    }
+  },
+  // Delete a Reaction
+  async deleteReaction(req, res) {
+    try {
+      const thought = await Thought.findOneAndUpdate(
+        { _id: req.params.thoughtId },
+        { $pull: { reactions: { reactionId: req.params.reactionId } } },
+        { runValidators: true, new: true}
+      )
+      if (!thought) {
+        res.status(404).json ({ message: 'No thought with that ID'});
+      }
+      res.json(thought);
+    } catch(err) {
+      res.status(500).json(err)
     }
   },
 };
