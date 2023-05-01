@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const thoughtSchema = require('./thought');
+// const thoughtSchema = require('./thought');
 
 // email validation function
 var validateEmail = function (email) {
@@ -26,7 +26,13 @@ const userSchema = new Schema(
             validate: [validateEmail, 'Please fill a valid email address'],
             match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
         },
-        thoughts: [thoughtSchema],
+        // Thoughts Array self-referencing the Thought Model to the User Model
+        thought: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: 'Thought',
+            }
+        ],
         // Friends Array self-referencing the User model
         friends: [
             {
@@ -37,7 +43,7 @@ const userSchema = new Schema(
         ],
     },
     {
-        toJson: {
+        toJSON: {
             virtuals: true,
         },
         id: false,
