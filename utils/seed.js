@@ -16,27 +16,27 @@ connection.once('open', async () => {
   // Create empty array to hold the users
   const user = [];
 
-  // Loop 20 times -- add users to the users array
-  for (let i = 0; i < 20; i++) {
-    // Get some random thought objects using a helper function that we imported from ./data
-    const thoughts = getRandomThoughtText(20);
+  // // Loop 20 times -- add users to the users array
+  // for (let i = 0; i < 20; i++) {
+  //   // Get some random thought objects using a helper function that we imported from ./data
+  //   const thoughts = getRandomThoughtText(20);
 
-    const username = getRandomUsername();
+  //   const username = getRandomUsername();
 
-    user.push({
-        username,
-        thoughts,
-    });
-  }
+  //   user.push({
+  //       username,
+  //       thoughts,
+  //   });
+  // }
 
-  // Add users to the collection and await the results
-  await User.collection.insertMany(user);
+  // // Add users to the collection and await the results
+  // await User.collection.insertMany(user);
 
-  // Add thoughts to the collection and await the results
-  await Thought.collection.insertMany(user.map(user => ({
-    thoughtName: 'Thought',
-    user: user._id,
-  })));
+  // // Add thoughts to the collection and await the results
+  // await Thought.collection.insertMany(user.map(user => ({
+  //   thoughtName: 'Thought',
+  //   user: user._id,
+  // })));
 
   // Log out the seed data to indicate what should appear in the database
   console.table(user);

@@ -38,6 +38,12 @@ const userSchema = new Schema(
             {
                 type: Schema.Types.ObjectId,
                 ref: 'User',
+                username: {
+                    type: String,
+                },
+                email: {
+                    type: String,
+                }
             },
 
         ],
