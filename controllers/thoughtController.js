@@ -32,7 +32,7 @@ module.exports = {
       const thought = await Thought.create(req.body)
       .then (({ _id }) => {
         return User.findOneAndUpdate(
-          { _id: ReadableStreamBYOBRequest.body.userId },
+          { username: req.body.username },
           { $push: {thought: _id } },
           { new: true }
         );

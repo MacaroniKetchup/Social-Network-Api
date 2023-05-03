@@ -107,6 +107,8 @@ module.exports = {
     try {
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
+        // look into adding username: to the addToSet to possibly display username
+        // for added friend to user
         { $addToSet: { friends: req.params.friendId } },
         { runValidators: true, new: true }
       );
